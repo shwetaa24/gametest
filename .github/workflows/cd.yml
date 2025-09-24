@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  PROJECT_ID: your-gcp-project-id
-  SERVICE: your-cloud-run-service-name
+  PROJECT_ID: inlaid-vehicle-465211-u3
+  SERVICE: game-repo
   REGION: us-central1
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ env.PROJECT_ID }}
+          project_id:  inlaid-vehicle-465211-u3
 
       - name: Build and push Docker image
         run: |
