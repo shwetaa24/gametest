@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Scoreboard Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        #scoreForm {
+            margin-top: 20px;
+        }
+        #scoreForm input, #scoreForm button {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        #scoreForm button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #scoreList {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        #scoreList li {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>High Score Game</h1>
+        <p>Play the game and submit your score!</p>
+        
+        <div id="scoreForm">
+            <input type="text" id="playerName" placeholder="Your Name" required>
+            <input type="number" id="playerScore" placeholder="Your Score" required>
+            <button onclick="submitScore()">Submit Score</button>
+        </div>
+
+        <h2>Leaderboard</h2>
+        <ul id="scoreList">
+            </ul>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        async function fetchScores() {
+            try {
+                const response = await fetch(`${API_URL}/scores`);
+                const scores = await response.json();
+                const scoreList = document.getElementById('scoreList');
+                scoreList.innerHTML = '';
+                scores.forEach(([player, score]) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${player}: ${score}`;
+                    scoreList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Failed to fetch scores:', error);
+            }
+        }
+
+        async function submitScore() {
+            const playerName = document.getElementById('playerName').value;
+            const playerScore = parseInt(document.getElementById('playerScore').value);
+
+            if (!playerName || isNaN(playerScore)) {
+                alert('Please enter a valid name and score.');
+                return;
+            }
+
+            try {
+                await fetch(`${API_URL}/scores`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ player: playerName, score: playerScore }),
+                });
+                alert('Score submitted successfully!');
+                document.getElementById('playerName').value = '';
+                document.getElementById('playerScore').value = '';
+                fetchScores(); // Refresh the list
+            } catch (error) {
+                console.error('Failed to submit score:', error);
+                alert('Failed to submit score.');
+            }
+        }
+
+        // Fetch scores on page load
+        document.addEventListener('DOMContentLoaded', fetchScores);
+    </script>
+</body>
+</html>
