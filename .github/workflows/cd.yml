@@ -8,8 +8,8 @@ on:
 env:
   # CORRECT: References the secrets stored in GitHub settings
   PROJECT_ID: inlaid-vehicle-465211-u3
-  GAR_LOCATION: ${{ secrets.GCP_ARTIFACT_REGISTRY }}
-  APP_NAME: guess-the-number
+  GAR_LOCATION: secrets.GCP_ARTIFACT_REGISTRY 
+  APP_NAME: game-repo
   REGION: us-central1
 
 jobs:
