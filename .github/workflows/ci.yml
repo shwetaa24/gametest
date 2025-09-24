@@ -27,9 +27,10 @@ jobs:
           pip install -r requirements.txt pytest flake8
 
       - name: Run unit tests
-        working-directory: ./game_app
+        
         run: |
-          pytest
+            pytest./game_app
+          
 
       - name: Lint code
         working-directory: ./game_app
