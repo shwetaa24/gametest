@@ -35,9 +35,10 @@ jobs:
       # Step 4: Build and push Docker image
       - name: Build and Push Docker Image
         run: |
-          IMAGE_PATH=us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{ github.sha }}
+          IMAGE_PATH=${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
           echo "Building Docker image: $IMAGE_PATH"
-          docker build -t $IMAGE_PATH .
+          # NOTE: The build context is set to your 'game_app' folder.
+          docker build -t $IMAGE_PATH ./game_app
           docker push $IMAGE_PATH
 
       # Step 5: Deploy to Cloud Run
