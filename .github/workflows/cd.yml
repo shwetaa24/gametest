@@ -3,10 +3,9 @@ name: CD - Deploy to Cloud Run
 on:
   push:
     branches:
-      - 'main'
+      - main
 
 env:
-  # CORRECT: References the secrets stored in GitHub settings
   PROJECT_ID: inlaid-vehicle-465211-u3
   GAR_LOCATION: us-central1-docker.pkg.dev
   APP_NAME: game-repo
@@ -18,26 +17,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      
-
+      # Step 2: Set up Google Cloud SDK
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          export_default_credentials: true
 
+      # Step 3: Authenticate Docker with Artifact Registry
       - name: Configure Docker
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}
 
+      # Step 4: Build and push Docker image
       - name: Build and Push Docker Image
         run: |
-          docker build -t us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{github.sha}}
-          docker push us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{github.sha}}
+          IMAGE_PATH=us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{ github.sha }}
+          echo "Building Docker image: $IMAGE_PATH"
+          docker build -t $IMAGE_PATH .
+          docker push $IMAGE_PATH
 
+      # Step 5: Deploy to Cloud Run
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: ${{ env.APP_NAME }}
           region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}:${{ github.sha }}
-          flags: '--allow-unauthenticated' # Use for public services
+          image: ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
+          flags: '--allow-unauthenticated'
