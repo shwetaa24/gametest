@@ -44,7 +44,7 @@ jobs:
           IMAGE_PATH=us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{ github.sha }}
           echo "Building Docker image: $IMAGE_PATH"
           # Use the repo root as build context
-          docker build -t $IMAGE_PATH .
+          docker build -t $IMAGE_PATH -f game_app/Dockerfile game_app/
           docker push $IMAGE_PATH
 
       # Step 5: Deploy to Cloud Run
