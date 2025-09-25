@@ -26,6 +26,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
       # Step 3: Authenticate Docker with Artifact Registry
@@ -37,15 +38,5 @@ jobs:
         run: |
           IMAGE_PATH=${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
           echo "Building Docker image: $IMAGE_PATH"
-          # NOTE: The build context is set to your 'game_app' folder.
           docker build -t $IMAGE_PATH ./game_app
           docker push $IMAGE_PATH
-
-      # Step 5: Deploy to Cloud Run
-      - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v1
-        with:
-          service: ${{ env.APP_NAME }}
-          region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
-          flags: '--allow-unauthenticated'
