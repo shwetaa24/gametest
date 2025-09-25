@@ -25,7 +25,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          # Corrected path to requirements.txt
+          pip install -r game_app/requirements.txt
 
       - name: Lint with flake8
         run: |
