@@ -13,11 +13,10 @@ env:
 
 jobs:
   deploy:
-    name: Build, Push, and Deploy
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repo
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -28,30 +27,34 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
           version: 'latest'
 
-      # Step 2b: Authenticate with service account
+      # Step 3: Authenticate with service account
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # Step 3: Authenticate Docker with Artifact Registry
+      # Step 4: Authenticate Docker with Artifact Registry
       - name: Configure Docker
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}
 
-      # Step 4: Build and push Docker image
+      # Step 5: Create timestamped tag
+      - name: Set timestamp tag
+        id: vars
+        run: echo "IMAGE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      # Step 6: Build and push Docker image
       - name: Build and Push Docker Image
         run: |
-          IMAGE_PATH=us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{ github.sha }}
+          IMAGE_PATH="${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${IMAGE_TAG}"
           echo "Building Docker image: $IMAGE_PATH"
-          # Use the repo root as build context
           docker build -t $IMAGE_PATH -f game_app/Dockerfile game_app/
           docker push $IMAGE_PATH
 
-      # Step 5: Deploy to Cloud Run
+      # Step 7: Deploy to Cloud Run
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v1
         with:
           service: ${{ env.APP_NAME }}
           region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${{ github.sha }}
+          image: "${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.APP_NAME }}/${{ env.APP_NAME }}:${IMAGE_TAG}"
           flags: '--allow-unauthenticated'
