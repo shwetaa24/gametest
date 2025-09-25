@@ -31,8 +31,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/ game-repo:github.sha
-          docker push us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo:github.sha
+          docker build -t us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{github.sha}}
+          docker push us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo/game-repo:${{github.sha}}
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v1
