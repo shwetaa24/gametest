@@ -1,0 +1,24 @@
+steps:
+  # Step 1: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/game-repo:$SHORT_SHA', '.']
+
+  # Step 2: Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/game-repo:$SHORT_SHA']
+
+  # Step 3: Deploy image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - game-repo
+      - --image=us-central1-docker.pkg.dev/$PROJECT_ID/game-repo:$SHORT_SHA
+      - --region=us-central1
+      - --platform=managed
+      - --allow-unauthenticated
+
+# Store built image
+images:
+  - us-central1-docker.pkg.dev/inlaid-vehicle-465211-u3/game-repo:$SHORT_SHA
